@@ -1,0 +1,60 @@
+package com.illusionai.app.core
+
+import android.content.Context
+import com.google.mlkit.nl.translate.TranslateLanguage
+import com.google.mlkit.nl.translate.Translation
+import com.google.mlkit.nl.translate.TranslatorOptions
+import kotlinx.coroutines.tasks.await
+
+class TranslationManager(private val context: Context) {
+    
+    private val supportedLanguages = mapOf(
+        "en" to TranslateLanguage.ENGLISH,
+        "es" to TranslateLanguage.SPANISH,
+        "fr" to TranslateLanguage.FRENCH,
+        "de" to TranslateLanguage.GERMAN,
+        "it" to TranslateLanguage.ITALIAN,
+        "pt" to TranslateLanguage.PORTUGUESE,
+        "ru" to TranslateLanguage.RUSSIAN,
+        "ja" to TranslateLanguage.JAPANESE,
+        "ko" to TranslateLanguage.KOREAN,
+        "zh" to TranslateLanguage.CHINESE,
+        "ar" to TranslateLanguage.ARABIC,
+        "hi" to TranslateLanguage.HINDI
+    )
+
+    suspend fun translateText(text: String, targetLanguage: String): String {
+        return try {
+            val targetLang = supportedLanguages[targetLanguage] ?: TranslateLanguage.ENGLISH
+            val translator = Translation.getClient(
+                TranslatorOptions.Builder()
+                    .setSourceLanguage(TranslateLanguage.ENGLISH)
+                    .setTargetLanguage(targetLang)
+                    .build()
+            )
+            
+            translator.downloadModelIfNeeded().await()
+            translator.translate(text).await()
+        } catch (e: Exception) {
+            text
+        }
+    }
+
+    fun getLanguageDisplayName(languageCode: String): String {
+        return when (languageCode) {
+            "en" -> "English"
+            "es" -> "Español"
+            "fr" -> "Français"
+            "de" -> "Deutsch"
+            "it" -> "Italiano"
+            "pt" -> "Português"
+            "ru" -> "Русский"
+            "ja" -> "日本語"
+            "ko" -> "한국어"
+            "zh" -> "中文"
+            "ar" -> "العربية"
+            "hi" -> "हिन्दी"
+            else -> "English"
+        }
+    }
+}
